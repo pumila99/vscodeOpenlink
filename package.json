@@ -1,0 +1,78 @@
+{
+  "name": "open-with-default-app",
+  "publisher": "local-dev",
+  "displayName": "Open with Default App",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/local/open-with-default-app"
+  },
+  "license": "MIT",
+  "description": "Opens unregistered file types with the OS default application",
+  "version": "0.0.4",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "openWithDefaultApp.editor",
+        "displayName": "Open with Default App",
+        "selector": [
+          { "filenamePattern": "*.xlsx" },
+          { "filenamePattern": "*.xls" },
+          { "filenamePattern": "*.xlsm" },
+          { "filenamePattern": "*.docx" },
+          { "filenamePattern": "*.doc" },
+          { "filenamePattern": "*.pptx" },
+          { "filenamePattern": "*.ppt" },
+          { "filenamePattern": "*.pdf" },
+          { "filenamePattern": "*.zip" },
+          { "filenamePattern": "*.tar" },
+          { "filenamePattern": "*.gz" },
+          { "filenamePattern": "*.7z" },
+          { "filenamePattern": "*.rar" },
+          { "filenamePattern": "*.exe" },
+          { "filenamePattern": "*.msi" },
+          { "filenamePattern": "*.mp3" },
+          { "filenamePattern": "*.mp4" },
+          { "filenamePattern": "*.avi" },
+          { "filenamePattern": "*.mov" },
+          { "filenamePattern": "*.mkv" },
+          { "filenamePattern": "*.wav" },
+          { "filenamePattern": "*.flac" },
+          { "filenamePattern": "*.psd" },
+          { "filenamePattern": "*.ai" },
+          { "filenamePattern": "*.sketch" }
+        ],
+        "priority": "default"
+      }
+    ],
+    "configuration": {
+      "title": "Open with Default App",
+      "properties": {
+        "openWithDefaultApp.showNotification": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a notification when a file is opened with the default application."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --no-rewrite-relative-links"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
+    "typescript": "^5.3.0"
+  }
+}
