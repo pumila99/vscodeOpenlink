@@ -31,16 +31,10 @@ class DefaultAppEditorProvider implements vscode.CustomReadonlyEditorProvider {
 
   resolveCustomEditor(
     document: vscode.CustomDocument,
-    webviewPanel: vscode.WebviewPanel,
+    _webviewPanel: vscode.WebviewPanel,
   ): void {
     const filePath = document.uri.fsPath;
     const fileName = path.basename(filePath);
-
-    // 最小限のHTMLを設定
-    webviewPanel.webview.html = `<!DOCTYPE html>
-<html><body style="background:#1e1e1e;color:#888;font-family:sans-serif;padding:20px;">
-<p>Opening ${fileName} with default application...</p>
-</body></html>`;
 
     // OSで開く
     openWithDefaultApp(filePath);
