@@ -7,8 +7,11 @@
     "url": "https://github.com/local/open-with-default-app"
   },
   "license": "MIT",
-  "description": "Opens unregistered file types with the OS default application",
-  "version": "0.0.4",
+  "description": "Opens files with the OS default application via explorer.exe (Windows only)",
+  "version": "0.1.11",
+  "os": [
+    "win32"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -23,31 +26,9 @@
         "viewType": "openWithDefaultApp.editor",
         "displayName": "Open with Default App",
         "selector": [
-          { "filenamePattern": "*.xlsx" },
-          { "filenamePattern": "*.xls" },
-          { "filenamePattern": "*.xlsm" },
-          { "filenamePattern": "*.docx" },
-          { "filenamePattern": "*.doc" },
-          { "filenamePattern": "*.pptx" },
-          { "filenamePattern": "*.ppt" },
-          { "filenamePattern": "*.pdf" },
-          { "filenamePattern": "*.zip" },
-          { "filenamePattern": "*.tar" },
-          { "filenamePattern": "*.gz" },
-          { "filenamePattern": "*.7z" },
-          { "filenamePattern": "*.rar" },
-          { "filenamePattern": "*.exe" },
-          { "filenamePattern": "*.msi" },
-          { "filenamePattern": "*.mp3" },
-          { "filenamePattern": "*.mp4" },
-          { "filenamePattern": "*.avi" },
-          { "filenamePattern": "*.mov" },
-          { "filenamePattern": "*.mkv" },
-          { "filenamePattern": "*.wav" },
-          { "filenamePattern": "*.flac" },
-          { "filenamePattern": "*.psd" },
-          { "filenamePattern": "*.ai" },
-          { "filenamePattern": "*.sketch" }
+          {
+            "filenamePattern": "*"
+          }
         ],
         "priority": "default"
       }
@@ -55,6 +36,40 @@
     "configuration": {
       "title": "Open with Default App",
       "properties": {
+        "openWithDefaultApp.extensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".xlsx",
+            ".xls",
+            ".xlsm",
+            ".docx",
+            ".doc",
+            ".pptx",
+            ".ppt",
+            ".pdf",
+            ".zip",
+            ".tar",
+            ".gz",
+            ".7z",
+            ".rar",
+            ".exe",
+            ".msi",
+            ".mp3",
+            ".mp4",
+            ".avi",
+            ".mov",
+            ".mkv",
+            ".wav",
+            ".flac",
+            ".psd",
+            ".ai",
+            ".sketch"
+          ],
+          "description": "List of file extensions to open with the OS default application. You can add any extension."
+        },
         "openWithDefaultApp.showNotification": {
           "type": "boolean",
           "default": true,

@@ -1,65 +1,63 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
+import * as fs from 'fs';
 
 /**
- * ファイルをOSのデフォルトアプリで開く
+ * カスタムエディタープロバイダー。
+ * ファイルクリック時に resolveCustomEditor() が呼ばれる。
  */
-function openWithDefaultApp(filePath: string): void {
-  const platform = process.platform;
-  if (platform === 'win32') {
-    cp.spawn('cmd', ['/c', 'start', '', filePath], {
-      detached: true,
-      stdio: 'ignore',
-    }).unref();
-  } else if (platform === 'darwin') {
-    cp.spawn('open', [filePath], { detached: true, stdio: 'ignore' }).unref();
-  } else {
-    cp.spawn('xdg-open', [filePath], { detached: true, stdio: 'ignore' }).unref();
-  }
-}
-
-/**
- * 何も表示しないカスタムエディター
- */
-class DefaultAppEditorProvider implements vscode.CustomReadonlyEditorProvider {
+class DefaultAppEditorProvider implements vscode.CustomReadonlyEditorProvider 
+{
   public static readonly viewType = 'openWithDefaultApp.editor';
 
-  openCustomDocument(uri: vscode.Uri): vscode.CustomDocument {
+  // VS Code がファイルのデータモデルを要求したときに呼ばれる（必須実装）
+  openCustomDocument(uri: vscode.Uri): vscode.CustomDocument 
+  {
     return { uri, dispose: () => {} };
   }
 
-  resolveCustomEditor(
-    document: vscode.CustomDocument,
-    _webviewPanel: vscode.WebviewPanel,
-  ): void {
+  // ファイルクリック時のイベントハンドラ本体
+  resolveCustomEditor( document: vscode.CustomDocument, _webviewPanel: vscode.WebviewPanel, ): void 
+  {
     const filePath = document.uri.fsPath;
-    const fileName = path.basename(filePath);
+    const ext = path.extname(filePath).toLowerCase();
 
-    // OSで開く
-    openWithDefaultApp(filePath);
+    // 設定から対象拡張子リストを取得
+    const config = vscode.workspace.getConfiguration('openWithDefaultApp');
+    const extensions: string[] = config.get('extensions') ?? [];
 
-    // dispose()は呼ばずにコマンドでタブを閉じる
-    // setTimeoutで次のイベントループに回すことでWebview初期化完了後に閉じる
+    const targetExtensions = new Set(
+      extensions.map((e) => e.toLowerCase().startsWith('.') ? e.toLowerCase() : '.' + e.toLowerCase())
+    );
+
+    // 拡張子が登録されていない場合
+    if (!targetExtensions.has(ext)) 
+    {
+      // タブを即閉じ
+      setTimeout(() => {
+            vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+            vscode.commands.executeCommand('vscode.openWith', document.uri, 'default');
+          }, 0);  // ← 100 → 50 に短縮
+      return;
+    }
+
+    // 対象拡張子 → explorer.exe で投げる
+    vscode.window.showInformationMessage(`${ext} をエクスプローラで開きます`);
+    cp.spawn('explorer.exe', [filePath], { detached: true, stdio: 'ignore' }).unref();
+
+    // タブを閉じる
     setTimeout(() => {
       vscode.commands.executeCommand('workbench.action.closeActiveEditor');
-
-      const config = vscode.workspace.getConfiguration('openWithDefaultApp');
-      const showNotification: boolean = config.get('showNotification') ?? true;
-      if (showNotification) {
-        vscode.window.showInformationMessage(
-          `Opened with default app: ${fileName}`
-        );
-      }
-    }, 100);
+    }, 10);  // ← これも 50 に短縮  }
   }
 }
 
-export function activate(context: vscode.ExtensionContext): void {
-  console.log('open-with-default-app: activated');
-
+// 拡張機能起動時のエントリポイント
+export function activate(context: vscode.ExtensionContext): void 
+{
+  // カスタムエディタープロバイダーを登録する（イベントハンドラの登録に相当）
   const provider = new DefaultAppEditorProvider();
-
   const registration = vscode.window.registerCustomEditorProvider(
     DefaultAppEditorProvider.viewType,
     provider,
@@ -68,7 +66,6 @@ export function activate(context: vscode.ExtensionContext): void {
       webviewOptions: { retainContextWhenHidden: false },
     }
   );
-
   context.subscriptions.push(registration);
 }
 

@@ -1,9 +1,25 @@
-﻿# build.ps1 - Build & vsix package generation script
+# build.ps1 - Build & vsix package generation script
 # Usage: Run .\build.ps1 in PowerShell
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "=== open-with-default-app Build Script ===" -ForegroundColor Cyan
+
+# ★ Increment version in package.json
+Write-Host "`n[0/4] Updating version ..." -ForegroundColor Cyan
+$packageJsonPath = Join-Path $PSScriptRoot "package.json"
+$packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
+
+# Parse version (e.g., "0.1.10" -> @("0", "1", "10"))
+$versionParts = $packageJson.version -split '\.'
+$patch = [int]$versionParts[2]
+$patch++
+$newVersion = "$($versionParts[0]).$($versionParts[1]).$patch"
+$packageJson.version = $newVersion
+
+# Write back to file
+$packageJson | ConvertTo-Json -Depth 10 | Set-Content $packageJsonPath
+Write-Host "  Version updated: $($packageJson.version)" -ForegroundColor Green
 
 # Check Node.js / npm
 try {
@@ -18,17 +34,17 @@ try {
 }
 
 # Install dependencies
-Write-Host "`n[1/3] npm install ..." -ForegroundColor Cyan
+Write-Host "`n[1/4] npm install ..." -ForegroundColor Cyan
 npm install
 if ($LASTEXITCODE -ne 0) { Write-Host "[ERROR] npm install failed" -ForegroundColor Red; exit 1 }
 
 # Compile TypeScript
-Write-Host "`n[2/3] TypeScript compile ..." -ForegroundColor Cyan
+Write-Host "`n[2/4] TypeScript compile ..." -ForegroundColor Cyan
 npm run compile
 if ($LASTEXITCODE -ne 0) { Write-Host "[ERROR] compile failed" -ForegroundColor Red; exit 1 }
 
 # Generate vsix package
-Write-Host "`n[3/3] Generate vsix package ..." -ForegroundColor Cyan
+Write-Host "`n[3/4] Generate vsix package ..." -ForegroundColor Cyan
 npm run package
 if ($LASTEXITCODE -ne 0) { Write-Host "[ERROR] vsce package failed" -ForegroundColor Red; exit 1 }
 
